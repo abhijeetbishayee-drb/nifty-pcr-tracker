@@ -131,17 +131,25 @@ def main():
                         continue
                     weekly_e, monthly_e = pick_weekly_and_monthly_from_bhav(opt_rows, d)
                     spot = float(opt_rows[0]["UndrlygPric"] or 0)
-                    weekly = compute_timeframe(opt_rows, weekly_e, spot, cfg["weeklyStep"])
+                    has_weekly = cfg.get("hasWeekly", True)
                     monthly = compute_timeframe(opt_rows, monthly_e, spot, cfg["monthlyStep"])
-                    if weekly is None or monthly is None:
+                    if monthly is None:
                         continue
-                    new_rows.append({
+                    row = {
                         "date": d.isoformat(), "symbol": tradingsymbol, "spot": spot,
-                        "weeklyExpiry": weekly_e, "weeklyPCR": weekly[0],
-                        "weeklyViolation": weekly[1], "weeklyEqStrike": weekly[2] or "",
+                        "weeklyExpiry": "", "weeklyPCR": "", "weeklyViolation": "", "weeklyEqStrike": "",
                         "monthlyExpiry": monthly_e, "monthlyPCR": monthly[0],
                         "monthlyViolation": monthly[1], "monthlyEqStrike": monthly[2] or "",
-                    })
+                    }
+                    if has_weekly:
+                        weekly = compute_timeframe(opt_rows, weekly_e, spot, cfg["weeklyStep"])
+                        if weekly is None:
+                            continue
+                        row["weeklyExpiry"] = weekly_e
+                        row["weeklyPCR"] = weekly[0]
+                        row["weeklyViolation"] = weekly[1]
+                        row["weeklyEqStrike"] = weekly[2] or ""
+                    new_rows.append(row)
                 print(f"  {d.isoformat()}: ok", flush=True)
             else:
                 print(f"  {d.isoformat()}: no bhavcopy (holiday?)", flush=True)

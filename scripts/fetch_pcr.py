@@ -123,28 +123,40 @@ def fetch_symbol(page, symbol_key, cfg, today, today_str, state):
         print(f"{tradingsymbol}: could not read expiry list", file=sys.stderr)
         return None
     weekly_expiry, monthly_expiry = pick_weekly_and_monthly(expiries)
+    has_weekly = cfg.get("hasWeekly", True)
 
-    weekly_spot, weekly_rows = fetch_chain_for_expiry(page, tradingsymbol, weekly_expiry)
-    if monthly_expiry == weekly_expiry:
-        monthly_spot, monthly_rows = weekly_spot, weekly_rows
+    if has_weekly:
+        weekly_spot, weekly_rows = fetch_chain_for_expiry(page, tradingsymbol, weekly_expiry)
+        if monthly_expiry == weekly_expiry:
+            monthly_spot, monthly_rows = weekly_spot, weekly_rows
+        else:
+            monthly_spot, monthly_rows = fetch_chain_for_expiry(page, tradingsymbol, monthly_expiry)
     else:
+        # No separate weekly for this symbol (e.g. BANKNIFTY, monthly-only since 2023) --
+        # fetch the monthly chain only.
         monthly_spot, monthly_rows = fetch_chain_for_expiry(page, tradingsymbol, monthly_expiry)
 
-    weekly = build_timeframe_result(
-        weekly_rows, weekly_spot, cfg["weeklyStep"], BAND, state, f"{symbol_key}_weekly", today_str)
     monthly = build_timeframe_result(
         monthly_rows, monthly_spot, cfg["monthlyStep"], BAND, state, f"{symbol_key}_monthly", today_str)
-
-    if weekly is None or monthly is None:
-        print(f"{tradingsymbol}: missing data (weekly={weekly is not None} monthly={monthly is not None})",
-              file=sys.stderr)
+    if monthly is None:
+        print(f"{tradingsymbol}: missing monthly data", file=sys.stderr)
         return None
 
-    return {
-        "spot": weekly_spot,
-        "weekly": {"expiry": weekly_expiry.isoformat(), **weekly},
+    result = {
+        "spot": monthly_spot,
         "monthly": {"expiry": monthly_expiry.isoformat(), **monthly},
     }
+
+    if has_weekly:
+        weekly = build_timeframe_result(
+            weekly_rows, weekly_spot, cfg["weeklyStep"], BAND, state, f"{symbol_key}_weekly", today_str)
+        if weekly is None:
+            print(f"{tradingsymbol}: missing weekly data", file=sys.stderr)
+            return None
+        result["spot"] = weekly_spot
+        result["weekly"] = {"expiry": weekly_expiry.isoformat(), **weekly}
+
+    return result
 
 
 def main():
@@ -181,7 +193,7 @@ def main():
 
     print(f"Wrote pcr_data.json: "
           f"nifty weekly={out['nifty']['weekly']['pcr']} monthly={out['nifty']['monthly']['pcr']}, "
-          f"bankNifty weekly={out['bankNifty']['weekly']['pcr']} monthly={out['bankNifty']['monthly']['pcr']}")
+          f"bankNifty monthly={out['bankNifty']['monthly']['pcr']}")
 
 
 if __name__ == "__main__":

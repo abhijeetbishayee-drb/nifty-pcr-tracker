@@ -134,14 +134,14 @@
 <div class="history"><h3>Weekly PCR &mdash; last 6 months</h3><div id="hist-nifty"></div></div>
 
 <h2 class="symbol-title">Bank Nifty <span id="bankNifty-spot" style="color:var(--text-dim); font-weight:400;"></span></h2>
-<div class="panels" id="panels-bankNifty">
-  <div class="panel" id="panel-bankNifty-weekly"></div>
+<div class="panels" id="panels-bankNifty" style="grid-template-columns: 1fr; max-width: 380px;">
   <div class="panel" id="panel-bankNifty-monthly"></div>
 </div>
-<div class="history"><h3>Weekly PCR &mdash; last 6 months</h3><div id="hist-bankNifty"></div></div>
+<div class="history"><h3>Monthly PCR &mdash; last 6 months</h3><div id="hist-bankNifty"></div></div>
 
 <footer>
   PCR = Put OI &divide; Call OI over a near-ATM strike band (weekly: 100pt steps, monthly: 500pt steps).
+  Bank Nifty shows monthly only &mdash; NSE discontinued its weekly expiry in 2023.
   Violation: PCR &lt; 0.7 or &gt; 2.0 &mdash; price tends to gravitate toward the equilibrium strike (near-equal Call/Put OI).
   0.41&rarr;0.80 crossing is an intraday reversal/SL signal &mdash; give it 15-30 min to stabilize before acting.
   Live data via Sensibull's public option chain (no broker login); history backfilled from NSE's official F&amp;O bhavcopy archive.
@@ -191,10 +191,12 @@ function renderPanel(elId, label, tf) {
   el.innerHTML = html;
 }
 
-function renderSymbol(symbolKey, label, data) {
+function renderSymbol(symbolKey, label, data, hasWeekly) {
   const sym = data[symbolKey];
   document.getElementById(symbolKey + '-spot').textContent = sym ? 'Spot: ' + sym.spot.toFixed(2) : '';
-  renderPanel('panel-' + symbolKey + '-weekly', label + ' Weekly PCR', sym && sym.weekly);
+  if (hasWeekly) {
+    renderPanel('panel-' + symbolKey + '-weekly', label + ' Weekly PCR', sym && sym.weekly);
+  }
   renderPanel('panel-' + symbolKey + '-monthly', label + ' Monthly PCR', sym && sym.monthly);
 }
 
@@ -209,10 +211,10 @@ function parseCSV(text) {
   });
 }
 
-function renderHistory(elId, rows, symbolTicker) {
+function renderHistory(elId, rows, symbolTicker, column) {
   const el = document.getElementById(elId);
-  const points = rows.filter(r => r.symbol === symbolTicker && r.weeklyPCR)
-                      .map(r => ({ date: r.date, pcr: parseFloat(r.weeklyPCR) }))
+  const points = rows.filter(r => r.symbol === symbolTicker && r[column])
+                      .map(r => ({ date: r.date, pcr: parseFloat(r[column]) }))
                       .sort((a, b) => a.date.localeCompare(b.date));
   if (points.length < 2) { el.innerHTML = '<div class="legend">Not enough history yet.</div>'; return; }
 
@@ -246,8 +248,8 @@ async function refresh() {
     updatedEl.textContent = 'Updated: ' + updatedStr + ' IST';
     updatedEl.className = ageMs > STALE_MS ? 'stale' : '';
 
-    renderSymbol('nifty', 'Nifty', data);
-    renderSymbol('bankNifty', 'Bank Nifty', data);
+    renderSymbol('nifty', 'Nifty', data, true);
+    renderSymbol('bankNifty', 'Bank Nifty', data, false);
   } catch (e) {
     document.getElementById('updated').textContent = 'Could not reach pcr_data.json - retrying...';
     document.getElementById('updated').className = 'stale';
@@ -258,8 +260,8 @@ async function refreshHistory() {
   try {
     const resp = await fetch('pcr_history.csv?t=' + Date.now(), { cache: 'no-store' });
     const rows = parseCSV(await resp.text());
-    renderHistory('hist-nifty', rows, 'NIFTY');
-    renderHistory('hist-bankNifty', rows, 'BANKNIFTY');
+    renderHistory('hist-nifty', rows, 'NIFTY', 'weeklyPCR');
+    renderHistory('hist-bankNifty', rows, 'BANKNIFTY', 'monthlyPCR');
   } catch (e) {
     document.getElementById('hist-nifty').innerHTML = '<div class="legend">History not available yet.</div>';
     document.getElementById('hist-bankNifty').innerHTML = '<div class="legend">History not available yet.</div>';

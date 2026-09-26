@@ -2,8 +2,9 @@
 (live, needs Playwright) and backfill_history.py (historical, stdlib only)."""
 
 SYMBOLS = {
-    "nifty": {"tradingsymbol": "NIFTY", "weeklyStep": 100, "monthlyStep": 500},
-    "bankNifty": {"tradingsymbol": "BANKNIFTY", "weeklyStep": 100, "monthlyStep": 500},
+    "nifty": {"tradingsymbol": "NIFTY", "weeklyStep": 100, "monthlyStep": 500, "hasWeekly": True},
+    # NSE discontinued BANKNIFTY weekly expiries in 2023 -- monthly only.
+    "bankNifty": {"tradingsymbol": "BANKNIFTY", "monthlyStep": 500, "hasWeekly": False},
 }
 BAND = 5  # strikes each side of ATM, at the symbol's step spacing
 
