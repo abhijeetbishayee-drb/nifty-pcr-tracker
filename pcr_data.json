@@ -1,7 +1,46 @@
 {
-  "generatedAt": "2026-09-26T17:07:19.429429+00:00",
+  "generatedAt": "2026-09-26T17:18:11.959758+00:00",
   "nifty": {
     "spot": 23140.5,
+    "monthly": {
+      "expiry": "2026-09-29",
+      "pcr": 1.065,
+      "violation": false,
+      "equilibriumStrike": null,
+      "crossed0_41_0_80": false,
+      "strikes": [
+        {
+          "strike": 22000,
+          "callOI": 5.2,
+          "putOI": 131.2
+        },
+        {
+          "strike": 22500,
+          "callOI": 5.5,
+          "putOI": 104.6
+        },
+        {
+          "strike": 23000,
+          "callOI": 32.8,
+          "putOI": 144.3
+        },
+        {
+          "strike": 23500,
+          "callOI": 141.4,
+          "putOI": 46.3
+        },
+        {
+          "strike": 24000,
+          "callOI": 156.1,
+          "putOI": 31.6
+        },
+        {
+          "strike": 24500,
+          "callOI": 101.7,
+          "putOI": 13.3
+        }
+      ]
+    },
     "weekly": {
       "expiry": "2026-09-29",
       "pcr": 1.137,
@@ -65,113 +104,10 @@
           "putOI": 9.5
         }
       ]
-    },
-    "monthly": {
-      "expiry": "2026-09-29",
-      "pcr": 1.065,
-      "violation": false,
-      "equilibriumStrike": null,
-      "crossed0_41_0_80": false,
-      "strikes": [
-        {
-          "strike": 22000,
-          "callOI": 5.2,
-          "putOI": 131.2
-        },
-        {
-          "strike": 22500,
-          "callOI": 5.5,
-          "putOI": 104.6
-        },
-        {
-          "strike": 23000,
-          "callOI": 32.8,
-          "putOI": 144.3
-        },
-        {
-          "strike": 23500,
-          "callOI": 141.4,
-          "putOI": 46.3
-        },
-        {
-          "strike": 24000,
-          "callOI": 156.1,
-          "putOI": 31.6
-        },
-        {
-          "strike": 24500,
-          "callOI": 101.7,
-          "putOI": 13.3
-        }
-      ]
     }
   },
   "bankNifty": {
     "spot": 55580.4,
-    "weekly": {
-      "expiry": "2026-09-29",
-      "pcr": 1.143,
-      "violation": false,
-      "equilibriumStrike": null,
-      "crossed0_41_0_80": false,
-      "strikes": [
-        {
-          "strike": 55100,
-          "callOI": 0.1,
-          "putOI": 1.8
-        },
-        {
-          "strike": 55200,
-          "callOI": 0.4,
-          "putOI": 2.1
-        },
-        {
-          "strike": 55300,
-          "callOI": 0.7,
-          "putOI": 4.4
-        },
-        {
-          "strike": 55400,
-          "callOI": 0.9,
-          "putOI": 2.5
-        },
-        {
-          "strike": 55500,
-          "callOI": 4.5,
-          "putOI": 6.9
-        },
-        {
-          "strike": 55600,
-          "callOI": 3.0,
-          "putOI": 3.5
-        },
-        {
-          "strike": 55700,
-          "callOI": 3.4,
-          "putOI": 2.6
-        },
-        {
-          "strike": 55800,
-          "callOI": 3.4,
-          "putOI": 2.6
-        },
-        {
-          "strike": 55900,
-          "callOI": 2.7,
-          "putOI": 1.8
-        },
-        {
-          "strike": 56000,
-          "callOI": 10.2,
-          "putOI": 6.7
-        },
-        {
-          "strike": 56100,
-          "callOI": 2.1,
-          "putOI": 1.0
-        }
-      ]
-    },
     "monthly": {
       "expiry": "2026-09-29",
       "pcr": 0.938,
