@@ -6,19 +6,13 @@ from datetime import datetime, date, timezone
 
 from playwright.sync_api import sync_playwright
 
+from pcr_common import (
+    SYMBOLS, BAND, VIOLATION_LOW, VIOLATION_HIGH, CROSS_LOW, CROSS_HIGH,
+    select_band, compute_pcr, equilibrium_strike,
+)
+
 STATE_PATH = os.path.join(os.path.dirname(__file__), "..", "pcr_state.json")
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "pcr_data.json")
-
-SYMBOLS = {
-    "nifty": {"tradingsymbol": "NIFTY", "weeklyStep": 100, "monthlyStep": 500},
-    "bankNifty": {"tradingsymbol": "BANKNIFTY", "weeklyStep": 100, "monthlyStep": 500},
-}
-BAND = 5  # strikes each side of ATM, at the symbol's step spacing
-
-VIOLATION_LOW = 0.7
-VIOLATION_HIGH = 2.0
-CROSS_LOW = 0.41
-CROSS_HIGH = 0.80
 
 # Wide-viewport combined layout renders one row as:
 # call_chg_pct, call_oi(lakh), call_ltp, strike, iv, put_ltp, put_oi(lakh), put_chg_pct
@@ -74,26 +68,6 @@ def fetch_chain_for_expiry(page, tradingsymbol, expiry_date):
          _put_ltp, put_oi, _put_chg_pct) = m.groups()
         rows[int(strike)] = {"callOI": float(call_oi), "putOI": float(put_oi)}
     return spot, rows
-
-
-def select_band(rows, spot, step, band):
-    if not rows:
-        return []
-    atm = round(spot / step) * step
-    wanted = [atm + i * step for i in range(-band, band + 1)]
-    return [s for s in wanted if s in rows]
-
-
-def compute_pcr(rows, strikes):
-    call_total = sum(rows[s]["callOI"] for s in strikes)
-    put_total = sum(rows[s]["putOI"] for s in strikes)
-    if call_total <= 0:
-        return None
-    return put_total / call_total
-
-
-def equilibrium_strike(rows, strikes):
-    return min(strikes, key=lambda s: abs(rows[s]["callOI"] - rows[s]["putOI"]))
 
 
 def load_state():

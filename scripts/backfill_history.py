@@ -18,7 +18,7 @@ from pathlib import Path
 
 import certifi
 
-from fetch_pcr import SYMBOLS, BAND, VIOLATION_LOW, VIOLATION_HIGH, select_band, compute_pcr, equilibrium_strike
+from pcr_common import SYMBOLS, BAND, VIOLATION_LOW, VIOLATION_HIGH, select_band, compute_pcr, equilibrium_strike
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "data" / "bhav"
