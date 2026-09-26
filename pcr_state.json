@@ -1,14 +1,26 @@
 {
-  "weekly": {
+  "nifty_weekly": {
     "date": "2026-09-26",
     "min": 1.137472630591179,
     "max": 1.137472630591179,
     "crossed": false
   },
-  "monthly": {
+  "nifty_monthly": {
     "date": "2026-09-26",
     "min": 1.064603569008358,
     "max": 1.064603569008358,
+    "crossed": false
+  },
+  "bankNifty_weekly": {
+    "date": "2026-09-26",
+    "min": 1.143312101910828,
+    "max": 1.143312101910828,
+    "crossed": false
+  },
+  "bankNifty_monthly": {
+    "date": "2026-09-26",
+    "min": 0.9377483443708609,
+    "max": 0.9377483443708609,
     "crossed": false
   }
 }

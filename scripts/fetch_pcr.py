@@ -9,10 +9,11 @@ from playwright.sync_api import sync_playwright
 STATE_PATH = os.path.join(os.path.dirname(__file__), "..", "pcr_state.json")
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "pcr_data.json")
 
-WEEKLY_STEP = 100
-WEEKLY_BAND = 5   # strikes each side of ATM, at WEEKLY_STEP spacing
-MONTHLY_STEP = 500
-MONTHLY_BAND = 5  # strikes each side of ATM, at MONTHLY_STEP spacing
+SYMBOLS = {
+    "nifty": {"tradingsymbol": "NIFTY", "weeklyStep": 100, "monthlyStep": 500},
+    "bankNifty": {"tradingsymbol": "BANKNIFTY", "weeklyStep": 100, "monthlyStep": 500},
+}
+BAND = 5  # strikes each side of ATM, at the symbol's step spacing
 
 VIOLATION_LOW = 0.7
 VIOLATION_HIGH = 2.0
@@ -31,7 +32,6 @@ def month_key(d):
 
 
 def parse_expiry_label(label, today):
-    # label like "29 Sep" possibly followed by other text already stripped by caller
     dt = datetime.strptime(label + f" {today.year}", "%d %b %Y").date()
     if dt < today:
         dt = dt.replace(year=today.year + 1)
@@ -44,7 +44,6 @@ def get_expiries(page, today):
     labels = page.locator('[role="option"]').all_inner_texts()
     dates = []
     for label in labels:
-        # "29 Sep (3 Days)" -> "29 Sep"
         m = re.match(r"(\d{1,2} [A-Za-z]{3})", label.strip())
         if m:
             dates.append(parse_expiry_label(m.group(1), today))
@@ -60,13 +59,13 @@ def pick_weekly_and_monthly(expiries):
     return weekly, monthly
 
 
-def fetch_chain_for_expiry(page, expiry_date):
-    url = f"https://web.sensibull.com/option-chain?tradingsymbol=NIFTY&expiry={expiry_date.isoformat()}"
+def fetch_chain_for_expiry(page, tradingsymbol, expiry_date):
+    url = f"https://web.sensibull.com/option-chain?tradingsymbol={tradingsymbol}&expiry={expiry_date.isoformat()}"
     page.goto(url, timeout=30000, wait_until="networkidle")
     page.wait_for_timeout(1500)
     text = page.inner_text("body")
 
-    spot_match = re.search(r"NIFTY\s*\n?\s*([\d,]+\.\d+)", text)
+    spot_match = re.search(re.escape(tradingsymbol) + r"\s*\n?\s*([\d,]+\.\d+)", text)
     spot = float(spot_match.group(1).replace(",", "")) if spot_match else None
 
     rows = {}
@@ -94,8 +93,7 @@ def compute_pcr(rows, strikes):
 
 
 def equilibrium_strike(rows, strikes):
-    best = min(strikes, key=lambda s: abs(rows[s]["callOI"] - rows[s]["putOI"]))
-    return best
+    return min(strikes, key=lambda s: abs(rows[s]["callOI"] - rows[s]["putOI"]))
 
 
 def load_state():
@@ -140,10 +138,47 @@ def build_timeframe_result(rows, spot, step, band, state, key, today_str):
     }
 
 
+def fetch_symbol(page, symbol_key, cfg, today, today_str, state):
+    tradingsymbol = cfg["tradingsymbol"]
+    page.goto(f"https://web.sensibull.com/option-chain?tradingsymbol={tradingsymbol}",
+              timeout=30000, wait_until="networkidle")
+    page.wait_for_timeout(1500)
+
+    expiries = get_expiries(page, today)
+    if not expiries:
+        print(f"{tradingsymbol}: could not read expiry list", file=sys.stderr)
+        return None
+    weekly_expiry, monthly_expiry = pick_weekly_and_monthly(expiries)
+
+    weekly_spot, weekly_rows = fetch_chain_for_expiry(page, tradingsymbol, weekly_expiry)
+    if monthly_expiry == weekly_expiry:
+        monthly_spot, monthly_rows = weekly_spot, weekly_rows
+    else:
+        monthly_spot, monthly_rows = fetch_chain_for_expiry(page, tradingsymbol, monthly_expiry)
+
+    weekly = build_timeframe_result(
+        weekly_rows, weekly_spot, cfg["weeklyStep"], BAND, state, f"{symbol_key}_weekly", today_str)
+    monthly = build_timeframe_result(
+        monthly_rows, monthly_spot, cfg["monthlyStep"], BAND, state, f"{symbol_key}_monthly", today_str)
+
+    if weekly is None or monthly is None:
+        print(f"{tradingsymbol}: missing data (weekly={weekly is not None} monthly={monthly is not None})",
+              file=sys.stderr)
+        return None
+
+    return {
+        "spot": weekly_spot,
+        "weekly": {"expiry": weekly_expiry.isoformat(), **weekly},
+        "monthly": {"expiry": monthly_expiry.isoformat(), **monthly},
+    }
+
+
 def main():
     today = date.today()
     today_str = today.isoformat()
     state = load_state()
+
+    out = {"generatedAt": datetime.now(timezone.utc).isoformat()}
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -154,47 +189,25 @@ def main():
             ),
             viewport={"width": 1280, "height": 900},
         )
-        page.goto("https://web.sensibull.com/option-chain?tradingsymbol=NIFTY",
-                   timeout=30000, wait_until="networkidle")
-        page.wait_for_timeout(1500)
-
-        expiries = get_expiries(page, today)
-        if not expiries:
-            print("Could not read expiry list", file=sys.stderr)
-            sys.exit(1)
-        weekly_expiry, monthly_expiry = pick_weekly_and_monthly(expiries)
-
-        weekly_spot, weekly_rows = fetch_chain_for_expiry(page, weekly_expiry)
-        if monthly_expiry == weekly_expiry:
-            monthly_spot, monthly_rows = weekly_spot, weekly_rows
-        else:
-            monthly_spot, monthly_rows = fetch_chain_for_expiry(page, monthly_expiry)
-
+        for symbol_key, cfg in SYMBOLS.items():
+            result = fetch_symbol(page, symbol_key, cfg, today, today_str, state)
+            if result is not None:
+                out[symbol_key] = result
         browser.close()
 
-    weekly = build_timeframe_result(
-        weekly_rows, weekly_spot, WEEKLY_STEP, WEEKLY_BAND, state, "weekly", today_str)
-    monthly = build_timeframe_result(
-        monthly_rows, monthly_spot, MONTHLY_STEP, MONTHLY_BAND, state, "monthly", today_str)
-
-    if weekly is None or monthly is None:
-        print(f"Missing data: weekly={weekly is not None} monthly={monthly is not None}",
+    if "nifty" not in out or "bankNifty" not in out:
+        print("Missing one or both symbols, aborting write to avoid a partial snapshot",
               file=sys.stderr)
         sys.exit(1)
-
-    out = {
-        "generatedAt": datetime.now(timezone.utc).isoformat(),
-        "spot": weekly_spot,
-        "weekly": {"expiry": weekly_expiry.isoformat(), **weekly},
-        "monthly": {"expiry": monthly_expiry.isoformat(), **monthly},
-    }
 
     with open(DATA_PATH, "w") as f:
         json.dump(out, f, indent=2)
     with open(STATE_PATH, "w") as f:
         json.dump(state, f, indent=2)
 
-    print(f"Wrote pcr_data.json: weekly PCR={weekly['pcr']} monthly PCR={monthly['pcr']}")
+    print(f"Wrote pcr_data.json: "
+          f"nifty weekly={out['nifty']['weekly']['pcr']} monthly={out['nifty']['monthly']['pcr']}, "
+          f"bankNifty weekly={out['bankNifty']['weekly']['pcr']} monthly={out['bankNifty']['monthly']['pcr']}")
 
 
 if __name__ == "__main__":

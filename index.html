@@ -8,7 +8,6 @@
   :root {
     --bg: #0d0d0d;
     --panel: #141414;
-    --panel2: #191919;
     --border: #2a2a2a;
     --gold: #e8b84a;
     --green: #2ecc71;
@@ -39,14 +38,17 @@
     margin: 0;
     letter-spacing: 0.02em;
   }
-  #spot {
+  h2.symbol-title {
     font-size: 15px;
-    color: var(--text-dim);
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 24px 0 8px 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
   }
-  #updated {
-    font-size: 12px;
-    color: var(--text-dim);
-  }
+  h2.symbol-title:first-of-type { margin-top: 0; }
+  #updated { font-size: 12px; color: var(--text-dim); }
   .stale { color: var(--red) !important; }
   .panels {
     display: grid;
@@ -62,23 +64,15 @@
     border-radius: 10px;
     padding: 14px;
   }
-  .panel h2 {
+  .panel h3 {
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-dim);
     margin: 0 0 4px 0;
   }
-  .panel .expiry {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-bottom: 10px;
-  }
-  .pcr-value {
-    font-size: 40px;
-    font-weight: 700;
-    line-height: 1;
-  }
+  .panel .expiry { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; }
+  .pcr-value { font-size: 40px; font-weight: 700; line-height: 1; }
   .band-neutral { color: var(--text); }
   .band-watch { color: var(--amber); }
   .band-violation { color: var(--red); }
@@ -99,54 +93,59 @@
     border: 1px solid rgba(232, 184, 74, 0.4);
     color: var(--gold);
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 12px;
-    font-size: 12px;
-  }
-  th, td {
-    padding: 4px 6px;
-    text-align: right;
-    border-bottom: 1px solid var(--border);
-  }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+  th, td { padding: 4px 6px; text-align: right; border-bottom: 1px solid var(--border); }
   th { color: var(--text-dim); font-weight: 500; }
   td.strike { color: var(--gold); font-weight: 600; }
   .oi-bar-cell { position: relative; }
-  .oi-bar {
-    position: absolute;
-    top: 2px; bottom: 2px;
-    border-radius: 3px;
-    opacity: 0.35;
-  }
+  .oi-bar { position: absolute; top: 2px; bottom: 2px; border-radius: 3px; opacity: 0.35; }
   .call-bar { background: var(--green); right: 0; }
   .put-bar { background: var(--red); left: 0; }
-  footer {
-    margin-top: 20px;
-    font-size: 11px;
-    color: var(--text-dim);
-    text-align: center;
+  .history {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 12px;
   }
+  .history h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 0 0 8px 0;
+  }
+  .history svg { width: 100%; height: 90px; display: block; }
+  .history .legend { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+  footer { margin-top: 20px; font-size: 11px; color: var(--text-dim); text-align: center; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>NIFTY &middot; PCR TRACKER</h1>
-  <div id="spot">--</div>
+  <h1>NIFTY &amp; BANK NIFTY &middot; PCR TRACKER</h1>
   <div id="updated">Loading...</div>
 </header>
 
-<div class="panels" id="panels">
-  <div class="panel" id="panel-weekly"></div>
-  <div class="panel" id="panel-monthly"></div>
+<h2 class="symbol-title">Nifty <span id="nifty-spot" style="color:var(--text-dim); font-weight:400;"></span></h2>
+<div class="panels" id="panels-nifty">
+  <div class="panel" id="panel-nifty-weekly"></div>
+  <div class="panel" id="panel-nifty-monthly"></div>
 </div>
+<div class="history"><h3>Weekly PCR &mdash; last 6 months</h3><div id="hist-nifty"></div></div>
+
+<h2 class="symbol-title">Bank Nifty <span id="bankNifty-spot" style="color:var(--text-dim); font-weight:400;"></span></h2>
+<div class="panels" id="panels-bankNifty">
+  <div class="panel" id="panel-bankNifty-weekly"></div>
+  <div class="panel" id="panel-bankNifty-monthly"></div>
+</div>
+<div class="history"><h3>Weekly PCR &mdash; last 6 months</h3><div id="hist-bankNifty"></div></div>
 
 <footer>
   PCR = Put OI &divide; Call OI over a near-ATM strike band (weekly: 100pt steps, monthly: 500pt steps).
   Violation: PCR &lt; 0.7 or &gt; 2.0 &mdash; price tends to gravitate toward the equilibrium strike (near-equal Call/Put OI).
   0.41&rarr;0.80 crossing is an intraday reversal/SL signal &mdash; give it 15-30 min to stabilize before acting.
-  Data via Sensibull's public option chain (no broker login). Refreshed every ~5 min during market hours.
+  Live data via Sensibull's public option chain (no broker login); history backfilled from NSE's official F&amp;O bhavcopy archive.
+  Refreshed every ~5 min during market hours.
 </footer>
 
 <script>
@@ -160,9 +159,9 @@ function bandClass(pcr) {
 
 function renderPanel(elId, label, tf) {
   const el = document.getElementById(elId);
-  if (!tf) { el.innerHTML = '<h2>' + label + '</h2><div class="pcr-value">--</div>'; return; }
+  if (!tf) { el.innerHTML = '<h3>' + label + '</h3><div class="pcr-value">--</div>'; return; }
 
-  let html = '<h2>' + label + '</h2>';
+  let html = '<h3>' + label + '</h3>';
   html += '<div class="expiry">Expiry: ' + tf.expiry + '</div>';
   html += '<div class="pcr-value ' + bandClass(tf.pcr) + '">' + tf.pcr.toFixed(3) + '</div>';
 
@@ -192,12 +191,54 @@ function renderPanel(elId, label, tf) {
   el.innerHTML = html;
 }
 
+function renderSymbol(symbolKey, label, data) {
+  const sym = data[symbolKey];
+  document.getElementById(symbolKey + '-spot').textContent = sym ? 'Spot: ' + sym.spot.toFixed(2) : '';
+  renderPanel('panel-' + symbolKey + '-weekly', label + ' Weekly PCR', sym && sym.weekly);
+  renderPanel('panel-' + symbolKey + '-monthly', label + ' Monthly PCR', sym && sym.monthly);
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',');
+  return lines.slice(1).map(line => {
+    const cells = line.split(',');
+    const row = {};
+    headers.forEach((h, i) => row[h] = cells[i]);
+    return row;
+  });
+}
+
+function renderHistory(elId, rows, symbolTicker) {
+  const el = document.getElementById(elId);
+  const points = rows.filter(r => r.symbol === symbolTicker && r.weeklyPCR)
+                      .map(r => ({ date: r.date, pcr: parseFloat(r.weeklyPCR) }))
+                      .sort((a, b) => a.date.localeCompare(b.date));
+  if (points.length < 2) { el.innerHTML = '<div class="legend">Not enough history yet.</div>'; return; }
+
+  const w = 900, h = 80, pad = 6;
+  const vals = points.map(p => p.pcr);
+  const min = Math.min(...vals, 0.5), max = Math.max(...vals, 1.5);
+  const x = i => pad + (i / (points.length - 1)) * (w - 2 * pad);
+  const y = v => h - pad - ((v - min) / (max - min)) * (h - 2 * pad);
+
+  let path = points.map((p, i) => (i === 0 ? 'M' : 'L') + x(i).toFixed(1) + ',' + y(p.pcr).toFixed(1)).join(' ');
+
+  const bandY07 = y(0.7), bandY20 = y(2.0);
+  let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">';
+  if (bandY07 >= 0 && bandY07 <= h) svg += '<line x1="0" y1="' + bandY07 + '" x2="' + w + '" y2="' + bandY07 + '" stroke="#ff5c5c" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>';
+  if (bandY20 >= 0 && bandY20 <= h) svg += '<line x1="0" y1="' + bandY20 + '" x2="' + w + '" y2="' + bandY20 + '" stroke="#ff5c5c" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>';
+  svg += '<path d="' + path + '" fill="none" stroke="#e8b84a" stroke-width="2"/>';
+  svg += '</svg>';
+  el.innerHTML = svg + '<div class="legend">' + points[0].date + ' &rarr; ' + points[points.length - 1].date
+    + ' &middot; latest ' + points[points.length - 1].pcr.toFixed(3)
+    + ' &middot; dashed lines mark the 0.7/2.0 violation bands</div>';
+}
+
 async function refresh() {
   try {
     const resp = await fetch('pcr_data.json?t=' + Date.now(), { cache: 'no-store' });
     const data = await resp.json();
-
-    document.getElementById('spot').textContent = 'Spot: ' + data.spot.toFixed(2);
 
     const updatedEl = document.getElementById('updated');
     const ageMs = Date.now() - new Date(data.generatedAt).getTime();
@@ -205,16 +246,30 @@ async function refresh() {
     updatedEl.textContent = 'Updated: ' + updatedStr + ' IST';
     updatedEl.className = ageMs > STALE_MS ? 'stale' : '';
 
-    renderPanel('panel-weekly', 'Weekly PCR', data.weekly);
-    renderPanel('panel-monthly', 'Monthly PCR', data.monthly);
+    renderSymbol('nifty', 'Nifty', data);
+    renderSymbol('bankNifty', 'Bank Nifty', data);
   } catch (e) {
     document.getElementById('updated').textContent = 'Could not reach pcr_data.json - retrying...';
     document.getElementById('updated').className = 'stale';
   }
 }
 
+async function refreshHistory() {
+  try {
+    const resp = await fetch('pcr_history.csv?t=' + Date.now(), { cache: 'no-store' });
+    const rows = parseCSV(await resp.text());
+    renderHistory('hist-nifty', rows, 'NIFTY');
+    renderHistory('hist-bankNifty', rows, 'BANKNIFTY');
+  } catch (e) {
+    document.getElementById('hist-nifty').innerHTML = '<div class="legend">History not available yet.</div>';
+    document.getElementById('hist-bankNifty').innerHTML = '<div class="legend">History not available yet.</div>';
+  }
+}
+
 refresh();
+refreshHistory();
 setInterval(refresh, 30000);
+setInterval(refreshHistory, 5 * 60000);
 </script>
 
 </body>
