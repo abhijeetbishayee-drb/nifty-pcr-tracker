@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nifty PCR Tracker</title>
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --panel: #141414;
+    --panel2: #191919;
+    --border: #2a2a2a;
+    --gold: #e8b84a;
+    --green: #2ecc71;
+    --red: #ff5c5c;
+    --amber: #e8b84a;
+    --text: #eaeaea;
+    --text-dim: #9a9a9a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 16px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 20px;
+    color: var(--gold);
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  #spot {
+    font-size: 15px;
+    color: var(--text-dim);
+  }
+  #updated {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .stale { color: var(--red) !important; }
+  .panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 720px) {
+    .panels { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    margin: 0 0 4px 0;
+  }
+  .panel .expiry {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .pcr-value {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .band-neutral { color: var(--text); }
+  .band-watch { color: var(--amber); }
+  .band-violation { color: var(--red); }
+  .banner {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+  .banner.violation {
+    background: rgba(255, 92, 92, 0.12);
+    border: 1px solid rgba(255, 92, 92, 0.4);
+    color: #ffb3b3;
+  }
+  .banner.crossing {
+    background: rgba(232, 184, 74, 0.12);
+    border: 1px solid rgba(232, 184, 74, 0.4);
+    color: var(--gold);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 12px;
+  }
+  th, td {
+    padding: 4px 6px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+  th { color: var(--text-dim); font-weight: 500; }
+  td.strike { color: var(--gold); font-weight: 600; }
+  .oi-bar-cell { position: relative; }
+  .oi-bar {
+    position: absolute;
+    top: 2px; bottom: 2px;
+    border-radius: 3px;
+    opacity: 0.35;
+  }
+  .call-bar { background: var(--green); right: 0; }
+  .put-bar { background: var(--red); left: 0; }
+  footer {
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>NIFTY &middot; PCR TRACKER</h1>
+  <div id="spot">--</div>
+  <div id="updated">Loading...</div>
+</header>
+
+<div class="panels" id="panels">
+  <div class="panel" id="panel-weekly"></div>
+  <div class="panel" id="panel-monthly"></div>
+</div>
+
+<footer>
+  PCR = Put OI &divide; Call OI over a near-ATM strike band (weekly: 100pt steps, monthly: 500pt steps).
+  Violation: PCR &lt; 0.7 or &gt; 2.0 &mdash; price tends to gravitate toward the equilibrium strike (near-equal Call/Put OI).
+  0.41&rarr;0.80 crossing is an intraday reversal/SL signal &mdash; give it 15-30 min to stabilize before acting.
+  Data via Sensibull's public option chain (no broker login). Refreshed every ~5 min during market hours.
+</footer>
+
+<script>
+const STALE_MS = 20 * 60 * 1000;
+
+function bandClass(pcr) {
+  if (pcr < 0.7 || pcr > 2.0) return 'band-violation';
+  if ((pcr >= 0.6 && pcr <= 0.7) || (pcr >= 1.5 && pcr <= 2.0)) return 'band-watch';
+  return 'band-neutral';
+}
+
+function renderPanel(elId, label, tf) {
+  const el = document.getElementById(elId);
+  if (!tf) { el.innerHTML = '<h2>' + label + '</h2><div class="pcr-value">--</div>'; return; }
+
+  let html = '<h2>' + label + '</h2>';
+  html += '<div class="expiry">Expiry: ' + tf.expiry + '</div>';
+  html += '<div class="pcr-value ' + bandClass(tf.pcr) + '">' + tf.pcr.toFixed(3) + '</div>';
+
+  if (tf.violation) {
+    html += '<div class="banner violation"><b>PCR VIOLATION</b> &mdash; price likely gravitates toward strike '
+          + '<b>' + tf.equilibriumStrike + '</b> (near-equal Call/Put OI).</div>';
+  }
+  if (tf.crossed0_41_0_80) {
+    html += '<div class="banner crossing"><b>0.41&rarr;0.80 CROSSING</b> today &mdash; possible SL trigger. '
+          + 'Give it 15-30 min to stabilize before acting.</div>';
+  }
+
+  const maxOI = Math.max(...tf.strikes.map(s => Math.max(s.callOI, s.putOI)), 1);
+  html += '<table><thead><tr><th>Call OI</th><th></th><th>Strike</th><th></th><th>Put OI</th></tr></thead><tbody>';
+  for (const s of tf.strikes) {
+    const callPct = (s.callOI / maxOI * 100).toFixed(0);
+    const putPct = (s.putOI / maxOI * 100).toFixed(0);
+    html += '<tr>'
+      + '<td>' + s.callOI.toFixed(1) + '</td>'
+      + '<td class="oi-bar-cell" style="width:60px"><div class="oi-bar call-bar" style="width:' + callPct + '%"></div></td>'
+      + '<td class="strike">' + s.strike + '</td>'
+      + '<td class="oi-bar-cell" style="width:60px"><div class="oi-bar put-bar" style="width:' + putPct + '%"></div></td>'
+      + '<td>' + s.putOI.toFixed(1) + '</td>'
+      + '</tr>';
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+async function refresh() {
+  try {
+    const resp = await fetch('pcr_data.json?t=' + Date.now(), { cache: 'no-store' });
+    const data = await resp.json();
+
+    document.getElementById('spot').textContent = 'Spot: ' + data.spot.toFixed(2);
+
+    const updatedEl = document.getElementById('updated');
+    const ageMs = Date.now() - new Date(data.generatedAt).getTime();
+    const updatedStr = new Date(data.generatedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    updatedEl.textContent = 'Updated: ' + updatedStr + ' IST';
+    updatedEl.className = ageMs > STALE_MS ? 'stale' : '';
+
+    renderPanel('panel-weekly', 'Weekly PCR', data.weekly);
+    renderPanel('panel-monthly', 'Monthly PCR', data.monthly);
+  } catch (e) {
+    document.getElementById('updated').textContent = 'Could not reach pcr_data.json - retrying...';
+    document.getElementById('updated').className = 'stale';
+  }
+}
+
+refresh();
+setInterval(refresh, 30000);
+</script>
+
+</body>
+</html>
