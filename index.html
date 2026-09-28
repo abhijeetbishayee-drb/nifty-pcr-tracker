@@ -97,6 +97,15 @@
   th, td { padding: 4px 6px; text-align: right; border-bottom: 1px solid var(--border); }
   th { color: var(--text-dim); font-weight: 500; }
   td.strike { color: var(--gold); font-weight: 600; }
+  tr.strike-row { cursor: pointer; }
+  tr.strike-row:hover { background: rgba(232, 184, 74, 0.06); }
+  tr.strike-detail td {
+    background: rgba(232, 184, 74, 0.05);
+    padding: 6px 6px 8px 6px;
+    font-size: 11.5px;
+    color: var(--text-dim);
+  }
+  tr.strike-detail .ltp-value { color: var(--text); font-weight: 600; }
   .oi-bar-cell { position: relative; }
   .oi-bar { position: absolute; top: 2px; bottom: 2px; border-radius: 3px; opacity: 0.35; }
   .call-bar { background: var(--green); right: 0; }
@@ -144,17 +153,27 @@
   Bank Nifty shows monthly only &mdash; NSE discontinued its weekly expiry in 2023.
   Violation: PCR &lt; 0.7 or &gt; 2.0 &mdash; price tends to gravitate toward the equilibrium strike (near-equal Call/Put OI).
   0.41&rarr;0.80 crossing is an intraday reversal/SL signal &mdash; give it 15-30 min to stabilize before acting.
+  Click a strike row to see its Call/Put LTP as of the last refresh.
   Live data via Sensibull's public option chain (no broker login); history backfilled from NSE's official F&amp;O bhavcopy archive.
   Refreshed every ~5 min during market hours.
 </footer>
 
 <script>
 const STALE_MS = 20 * 60 * 1000;
+const expandedRows = new Set();
 
 function bandClass(pcr) {
   if (pcr < 0.7 || pcr > 2.0) return 'band-violation';
   if ((pcr >= 0.6 && pcr <= 0.7) || (pcr >= 1.5 && pcr <= 2.0)) return 'band-watch';
   return 'band-neutral';
+}
+
+function toggleDetail(rowId) {
+  const el = document.getElementById(rowId);
+  if (!el) return;
+  const nowOpen = el.style.display === 'none';
+  el.style.display = nowOpen ? 'table-row' : 'none';
+  if (nowOpen) { expandedRows.add(rowId); } else { expandedRows.delete(rowId); }
 }
 
 function renderPanel(elId, label, tf) {
@@ -179,13 +198,25 @@ function renderPanel(elId, label, tf) {
   for (const s of tf.strikes) {
     const callPct = (s.callOI / maxOI * 100).toFixed(0);
     const putPct = (s.putOI / maxOI * 100).toFixed(0);
-    html += '<tr>'
+    // Stable per strike+panel, not a running counter -- so an expanded row
+    // survives the periodic re-render instead of silently collapsing.
+    const rowId = 'detail-' + elId + '-' + s.strike;
+    const hasLTP = (s.callLTP !== undefined && s.putLTP !== undefined);
+    const isOpen = expandedRows.has(rowId);
+    html += '<tr class="strike-row" onclick="toggleDetail(\'' + rowId + '\')">'
       + '<td>' + s.callOI.toFixed(1) + '</td>'
       + '<td class="oi-bar-cell" style="width:60px"><div class="oi-bar call-bar" style="width:' + callPct + '%"></div></td>'
       + '<td class="strike">' + s.strike + '</td>'
       + '<td class="oi-bar-cell" style="width:60px"><div class="oi-bar put-bar" style="width:' + putPct + '%"></div></td>'
       + '<td>' + s.putOI.toFixed(1) + '</td>'
       + '</tr>';
+    if (hasLTP) {
+      html += '<tr class="strike-detail" id="' + rowId + '" style="display:' + (isOpen ? 'table-row' : 'none') + '">'
+        + '<td colspan="5">'
+        + 'Strike ' + s.strike + ' &middot; Call LTP <span class="ltp-value">Rs.' + s.callLTP.toFixed(2) + '</span>'
+        + ' &middot; Put LTP <span class="ltp-value">Rs.' + s.putLTP.toFixed(2) + '</span>'
+        + '</td></tr>';
+    }
   }
   html += '</tbody></table>';
   el.innerHTML = html;

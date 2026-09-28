@@ -64,9 +64,12 @@ def fetch_chain_for_expiry(page, tradingsymbol, expiry_date):
 
     rows = {}
     for m in ROW_RE.finditer(text):
-        (_call_chg_pct, call_oi, _call_ltp, strike, _iv,
-         _put_ltp, put_oi, _put_chg_pct) = m.groups()
-        rows[int(strike)] = {"callOI": float(call_oi), "putOI": float(put_oi)}
+        (_call_chg_pct, call_oi, call_ltp, strike, _iv,
+         put_ltp, put_oi, _put_chg_pct) = m.groups()
+        rows[int(strike)] = {
+            "callOI": float(call_oi), "putOI": float(put_oi),
+            "callLTP": float(call_ltp), "putLTP": float(put_ltp),
+        }
     return spot, rows
 
 
@@ -106,7 +109,10 @@ def build_timeframe_result(rows, spot, step, band, state, key, today_str):
         "equilibriumStrike": eq_strike,
         "crossed0_41_0_80": crossed,
         "strikes": [
-            {"strike": s, "callOI": rows[s]["callOI"], "putOI": rows[s]["putOI"]}
+            {
+                "strike": s, "callOI": rows[s]["callOI"], "putOI": rows[s]["putOI"],
+                "callLTP": rows[s]["callLTP"], "putLTP": rows[s]["putLTP"],
+            }
             for s in strikes
         ],
     }

@@ -1,6 +1,10 @@
 name: Update PCR data
 
 on:
+  # Re-saved 2026-09-28: the schedule trigger never fired on its own since
+  # this workflow was created 2026-09-26 (only manual workflow_dispatch runs
+  # exist) -- a re-commit of the workflow file is the standard nudge for
+  # GitHub's scheduler when this happens on a newly created workflow.
   schedule:
     - cron: '*/5 3-10 * * 1-5'
   workflow_dispatch: {}

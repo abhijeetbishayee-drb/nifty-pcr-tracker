@@ -1,6 +1,7 @@
 name: Update PCR history
 
 on:
+  # Re-saved 2026-09-28 alongside update.yml's scheduler nudge -- same fix.
   schedule:
     # Once daily after NSE bhavcopy is typically published (~18:30 IST = 13:00 UTC)
     - cron: '0 13 * * 1-5'
