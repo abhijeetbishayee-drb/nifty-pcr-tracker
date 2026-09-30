@@ -1,13 +1,27 @@
 name: Update PCR data
 
 on:
-  # Re-saved 2026-09-28: the schedule trigger never fired on its own since
-  # this workflow was created 2026-09-26 (only manual workflow_dispatch runs
-  # exist) -- a re-commit of the workflow file is the standard nudge for
-  # GitHub's scheduler when this happens on a newly created workflow.
+  # The REAL cadence comes from an external pinger (cron-job.org) calling the
+  # workflow_dispatch REST API -- the same mechanism nifty-heatmap-web already
+  # uses, and for the same reason.
+  #
+  # Measured 2026-09-30, why this stopped being a schedule: '*/5 3-10 * * 1-5'
+  # asks for 96 runs a weekday. GitHub delivered 2 on 09-28, 2 on 09-29 and 0
+  # on 09-30, and fired two of them at 15:58 and 17:37 UTC -- hours outside the
+  # 3-10 UTC window the cron itself specifies. The dashboard was 14.6h stale
+  # mid-session. Re-saving the workflow (2026-09-28) fixed "never fires"; it
+  # cannot fix "fires on time". High-frequency Actions schedules are
+  # best-effort and deprioritised, so they cannot drive an intraday board.
+  #
+  # The schedule below is now only a SAFETY NET for the pinger being down.
   schedule:
-    - cron: '*/5 3-10 * * 1-5'
-  workflow_dispatch: {}
+    - cron: '*/15 3-10 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Run even outside market hours'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -20,21 +34,48 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
+      # The pinger calls workflow_dispatch, which has no cron window of its own,
+      # so the market-hours limit has to live HERE or a misconfigured pinger
+      # would run Playwright around the clock. Gate first, before the expensive
+      # browser install -- an out-of-hours ping then costs seconds, not minutes.
+      - id: gate
+        name: Market-hours gate (IST)
+        run: |
+          set -euo pipefail
+          read -r DOW HM < <(TZ=Asia/Kolkata date +'%u %H%M')
+          HM=$((10#$HM))
+          if [ "${{ inputs.force }}" = "true" ]; then
+            echo "forced run, gate bypassed"; echo "ok=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          # 09:10-15:45 IST: a little either side of 09:15-15:30 so the open and
+          # the close are both captured.
+          if [ "$DOW" -le 5 ] && [ "$HM" -ge 910 ] && [ "$HM" -le 1545 ]; then
+            echo "in market hours (IST day $DOW, $HM)"; echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "outside market hours (IST day $DOW, $HM) -- skipping"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.gate.outputs.ok == 'true'
 
       - uses: actions/setup-python@v5
+        if: steps.gate.outputs.ok == 'true'
         with:
           python-version: '3.12'
 
       - name: Install Playwright
+        if: steps.gate.outputs.ok == 'true'
         run: |
           pip install playwright
           playwright install --with-deps chromium
 
       - name: Fetch PCR data
+        if: steps.gate.outputs.ok == 'true'
         run: python scripts/fetch_pcr.py
 
       - name: Commit and push if changed
+        if: steps.gate.outputs.ok == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
