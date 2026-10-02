@@ -184,6 +184,19 @@
 </div>
 <div class="history"><h3>Monthly PCR &mdash; last 6 months</h3><div id="hist-bankNifty"></div></div>
 
+<h2 class="symbol-title">Sensex <span id="sensex-spot" style="color:var(--text-dim); font-weight:400;"></span></h2>
+<div class="panels" id="panels-sensex">
+  <div class="panel" id="panel-sensex-weekly"></div>
+  <div class="panel" id="panel-sensex-monthly"></div>
+</div>
+<div class="legend" id="sensex-note">
+  SENSEX is a <b>BSE</b> index and its weeklies expire on Thursday. The band is set to the same
+  share of spot as Nifty's rather than the same number of points &mdash; 300 and 1000, against
+  Nifty's 100 and 500, because Sensex trades around 3.2&times; its level. There is
+  <b>no history line below</b>: the backfill reads NSE's F&amp;O bhavcopy, which does not carry a
+  BSE index.
+</div>
+
 <footer>
   PCR = Put OI &divide; Call OI over a near-ATM strike band (weekly: 100pt steps, monthly: 500pt steps).
   Bank Nifty shows monthly only &mdash; NSE discontinued its weekly expiry in 2023.
@@ -317,6 +330,13 @@ async function refresh() {
 
     renderSymbol('nifty', 'Nifty', data, true);
     renderSymbol('bankNifty', 'Bank Nifty', data, false);
+    if (data.sensex) {
+      renderSymbol('sensex', 'Sensex', data, true);
+    } else {
+      // say so rather than leaving two empty boxes
+      document.getElementById('panels-sensex').innerHTML =
+        '<div class="legend">Sensex chain not read on this run.</div>';
+    }
   } catch (e) {
     document.getElementById('updated').textContent = 'Could not reach pcr_data.json - retrying...';
     document.getElementById('updated').className = 'stale';

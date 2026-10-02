@@ -105,6 +105,8 @@ def build_timeframe_result(rows, spot, step, band, state, key, today_str):
     crossed = update_crossing_state(state, key, pcr, today_str)
     return {
         "pcr": round(pcr, 3),
+        "bandStrikes": len(strikes),
+        "bandWanted": 2 * band + 1,
         "violation": violation,
         "equilibriumStrike": eq_strike,
         "crossed0_41_0_80": crossed,

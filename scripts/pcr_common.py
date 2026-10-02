@@ -5,8 +5,22 @@ SYMBOLS = {
     "nifty": {"tradingsymbol": "NIFTY", "weeklyStep": 100, "monthlyStep": 500, "hasWeekly": True},
     # NSE discontinued BANKNIFTY weekly expiries in 2023 -- monthly only.
     "bankNifty": {"tradingsymbol": "BANKNIFTY", "monthlyStep": 500, "hasWeekly": False},
+    # SENSEX is BSE, not NSE, and trades weeklies on Thursday. Steps are set to
+    # put the band on the SAME SHARE OF SPOT as NIFTY's rather than copying its
+    # numbers: SENSEX is ~3.2x NIFTY, so 100/500 there is 300/1000 here, which
+    # measured on 2026-10-03 gives +-2.1% weekly and +-7.0% monthly against
+    # NIFTY's +-2.2% and +-6.7%. Strike spacing on the chain is 100, so both
+    # steps land on strikes that exist.
+    "sensex": {"tradingsymbol": "SENSEX", "weeklyStep": 300, "monthlyStep": 1000, "hasWeekly": True},
 }
 BAND = 5  # strikes each side of ATM, at the symbol's step spacing
+
+# Sensibull renders a window around ATM rather than the whole chain -- measured
+# 2026-10-03, +-6.7% for NIFTY and +-4.2% for SENSEX. A monthly band wider than
+# that window therefore lands on strikes the page never shows, and select_band
+# drops them SILENTLY: NIFTY's monthly PCR has been running on 6-7 of its 11
+# strikes all along, which is visible in pcr_data.json. The count is now
+# published per timeframe so a thin band is readable instead of implied.
 
 VIOLATION_LOW = 0.7
 VIOLATION_HIGH = 2.0
