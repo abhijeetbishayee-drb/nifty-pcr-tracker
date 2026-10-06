@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-06T06:00:51.509361+00:00",
+  "generatedAt": "2026-10-06T06:05:35.708213+00:00",
   "nifty": {
-    "spot": 22675.3,
+    "spot": 22678.75,
     "monthly": {
       "expiry": "2026-10-27",
-      "pcr": 0.995,
+      "pcr": 0.994,
       "bandStrikes": 6,
       "bandWanted": 11,
       "violation": false,
@@ -14,50 +14,50 @@
         {
           "strike": 21500,
           "callOI": 5.1,
-          "putOI": 26.5,
-          "callLTP": 1286.0,
-          "putLTP": 37.25
+          "putOI": 26.3,
+          "callLTP": 1283.0,
+          "putLTP": 36.7
         },
         {
           "strike": 22000,
           "callOI": 11.9,
           "putOI": 48.2,
-          "callLTP": 837.0,
-          "putLTP": 81.3
+          "callLTP": 840.0,
+          "putLTP": 80.0
         },
         {
           "strike": 22500,
           "callOI": 27.2,
-          "putOI": 45.9,
-          "callLTP": 450.6,
-          "putLTP": 188.4
+          "putOI": 46.0,
+          "callLTP": 453.0,
+          "putLTP": 185.95
         },
         {
           "strike": 23000,
           "callOI": 51.5,
           "putOI": 41.8,
-          "callLTP": 175.4,
-          "putLTP": 410.05
+          "callLTP": 176.0,
+          "putLTP": 406.35
         },
         {
           "strike": 23500,
           "callOI": 87.1,
           "putOI": 54.0,
-          "callLTP": 48.7,
-          "putLTP": 780.15
+          "callLTP": 49.05,
+          "putLTP": 774.3
         },
         {
           "strike": 24000,
           "callOI": 62.7,
           "putOI": 27.8,
-          "callLTP": 15.1,
-          "putLTP": 1238.6
+          "callLTP": 15.2,
+          "putLTP": 1240.0
         }
       ]
     },
     "weekly": {
       "expiry": "2026-10-06",
-      "pcr": 1.195,
+      "pcr": 1.205,
       "bandStrikes": 11,
       "bandWanted": 11,
       "violation": false,
@@ -67,88 +67,88 @@
         {
           "strike": 22200,
           "callOI": 3.8,
-          "putOI": 167.4,
-          "callLTP": 471.4,
-          "putLTP": 2.0
+          "putOI": 168.1,
+          "callLTP": 474.2,
+          "putLTP": 1.85
         },
         {
           "strike": 22300,
           "callOI": 7.8,
-          "putOI": 144.0,
-          "callLTP": 372.65,
-          "putLTP": 2.85
+          "putOI": 145.5,
+          "callLTP": 375.6,
+          "putLTP": 2.65
         },
         {
           "strike": 22400,
-          "callOI": 19.1,
-          "putOI": 220.9,
-          "callLTP": 275.0,
-          "putLTP": 5.05
+          "callOI": 18.7,
+          "putOI": 220.2,
+          "callLTP": 278.0,
+          "putLTP": 4.65
         },
         {
           "strike": 22500,
-          "callOI": 42.4,
-          "putOI": 347.3,
-          "callLTP": 181.35,
-          "putLTP": 11.0
+          "callOI": 41.8,
+          "putOI": 346.0,
+          "callLTP": 182.95,
+          "putLTP": 9.95
         },
         {
           "strike": 22600,
-          "callOI": 131.0,
-          "putOI": 455.3,
-          "callLTP": 97.15,
-          "putLTP": 26.6
+          "callOI": 129.5,
+          "putOI": 460.5,
+          "callLTP": 98.05,
+          "putLTP": 24.55
         },
         {
           "strike": 22700,
-          "callOI": 286.1,
-          "putOI": 198.7,
-          "callLTP": 37.45,
-          "putLTP": 67.2
+          "callOI": 289.4,
+          "putOI": 197.2,
+          "callLTP": 37.9,
+          "putLTP": 64.25
         },
         {
           "strike": 22800,
-          "callOI": 253.7,
-          "putOI": 49.9,
-          "callLTP": 10.2,
-          "putLTP": 140.6
+          "callOI": 248.8,
+          "putOI": 50.6,
+          "callLTP": 10.3,
+          "putLTP": 137.4
         },
         {
           "strike": 22900,
-          "callOI": 181.0,
-          "putOI": 10.0,
-          "callLTP": 2.45,
-          "putLTP": 233.0
+          "callOI": 179.7,
+          "putOI": 10.4,
+          "callLTP": 2.5,
+          "putLTP": 229.35
         },
         {
           "strike": 23000,
-          "callOI": 189.1,
-          "putOI": 11.1,
-          "callLTP": 1.05,
-          "putLTP": 331.0
+          "callOI": 187.4,
+          "putOI": 11.0,
+          "callLTP": 1.0,
+          "putLTP": 328.95
         },
         {
           "strike": 23100,
-          "callOI": 122.7,
-          "putOI": 4.1,
-          "callLTP": 0.6,
-          "putLTP": 430.0
+          "callOI": 123.2,
+          "putOI": 4.0,
+          "callLTP": 0.55,
+          "putLTP": 427.9
         },
         {
           "strike": 23200,
-          "callOI": 111.8,
-          "putOI": 3.4,
+          "callOI": 111.3,
+          "putOI": 3.3,
           "callLTP": 0.4,
-          "putLTP": 531.7
+          "putLTP": 529.35
         }
       ]
     }
   },
   "bankNifty": {
-    "spot": 54978.9,
+    "spot": 55003.95,
     "monthly": {
       "expiry": "2026-10-27",
-      "pcr": 0.962,
+      "pcr": 0.959,
       "bandStrikes": 11,
       "bandWanted": 11,
       "violation": false,
@@ -160,83 +160,83 @@
           "callOI": 0.0,
           "putOI": 3.7,
           "callLTP": 2585.15,
-          "putLTP": 148.45
+          "putLTP": 146.4
         },
         {
           "strike": 53000,
           "callOI": 0.6,
           "putOI": 5.9,
           "callLTP": 2443.15,
-          "putLTP": 204.35
+          "putLTP": 202.6
         },
         {
           "strike": 53500,
           "callOI": 0.5,
           "putOI": 3.4,
           "callLTP": 2024.9,
-          "putLTP": 282.0
+          "putLTP": 279.35
         },
         {
           "strike": 54000,
           "callOI": 2.4,
           "putOI": 7.1,
-          "callLTP": 1578.6,
-          "putLTP": 388.85
+          "callLTP": 1586.85,
+          "putLTP": 381.15
         },
         {
           "strike": 54500,
           "callOI": 2.7,
           "putOI": 4.5,
-          "callLTP": 1227.75,
-          "putLTP": 528.75
+          "callLTP": 1231.35,
+          "putLTP": 518.6
         },
         {
           "strike": 55000,
-          "callOI": 8.3,
+          "callOI": 8.4,
           "putOI": 10.2,
-          "callLTP": 915.7,
-          "putLTP": 714.45
+          "callLTP": 928.0,
+          "putLTP": 700.4
         },
         {
           "strike": 55500,
           "callOI": 6.2,
           "putOI": 4.2,
-          "callLTP": 650.0,
-          "putLTP": 949.85
+          "callLTP": 660.0,
+          "putLTP": 938.0
         },
         {
           "strike": 56000,
-          "callOI": 12.2,
-          "putOI": 7.5,
-          "callLTP": 443.15,
-          "putLTP": 1236.0
+          "callOI": 12.3,
+          "putOI": 7.4,
+          "callLTP": 449.0,
+          "putLTP": 1216.3
         },
         {
           "strike": 56500,
           "callOI": 7.8,
           "putOI": 3.9,
-          "callLTP": 285.0,
-          "putLTP": 1570.35
+          "callLTP": 290.0,
+          "putLTP": 1565.0
         },
         {
           "strike": 57000,
-          "callOI": 10.7,
+          "callOI": 10.6,
           "putOI": 4.1,
-          "callLTP": 177.3,
+          "callLTP": 180.0,
           "putLTP": 1966.0
         },
         {
           "strike": 57500,
           "callOI": 8.9,
           "putOI": 3.5,
-          "callLTP": 108.2,
+          "callLTP": 109.5,
           "putLTP": 2350.0
         }
       ]
     }
   },
   "sensex": {
-    "spot": 72791.68,
+    "spot": 72789.55,
     "monthly": {
       "expiry": "2026-10-29",
       "pcr": 0.8,
@@ -251,48 +251,48 @@
           "callOI": 0.1,
           "putOI": 0.2,
           "callLTP": 2154.0,
-          "putLTP": 329.1
+          "putLTP": 329.65
         },
         {
           "strike": 72000,
           "callOI": 0.2,
           "putOI": 0.3,
-          "callLTP": 1698.6,
-          "putLTP": 555.35
+          "callLTP": 1658.25,
+          "putLTP": 560.0
         },
         {
           "strike": 73000,
           "callOI": 0.2,
           "putOI": 0.2,
-          "callLTP": 1031.55,
-          "putLTP": 911.0
+          "callLTP": 1020.15,
+          "putLTP": 911.75
         },
         {
           "strike": 74000,
           "callOI": 0.3,
           "putOI": 0.3,
-          "callLTP": 564.0,
-          "putLTP": 1410.05
+          "callLTP": 569.45,
+          "putLTP": 1430.0
         },
         {
           "strike": 75000,
           "callOI": 0.4,
           "putOI": 0.1,
-          "callLTP": 288.5,
+          "callLTP": 283.0,
           "putLTP": 2113.85
         },
         {
           "strike": 76000,
           "callOI": 0.3,
           "putOI": 0.1,
-          "callLTP": 139.0,
+          "callLTP": 138.95,
           "putLTP": 3013.95
         }
       ]
     },
     "weekly": {
       "expiry": "2026-10-08",
-      "pcr": 1.295,
+      "pcr": 1.327,
       "bandStrikes": 11,
       "bandWanted": 11,
       "violation": false,
@@ -303,77 +303,77 @@
           "strike": 71400,
           "callOI": 0.2,
           "putOI": 2.6,
-          "callLTP": 1450.0,
-          "putLTP": 63.0
+          "callLTP": 1427.75,
+          "putLTP": 62.4
         },
         {
           "strike": 71700,
           "callOI": 0.4,
           "putOI": 4.0,
-          "callLTP": 1172.85,
-          "putLTP": 95.9
+          "callLTP": 1171.1,
+          "putLTP": 95.65
         },
         {
           "strike": 72000,
-          "callOI": 2.8,
+          "callOI": 2.7,
           "putOI": 11.9,
-          "callLTP": 923.3,
-          "putLTP": 144.3
+          "callLTP": 934.4,
+          "putLTP": 142.6
         },
         {
           "strike": 72300,
-          "callOI": 1.9,
-          "putOI": 8.6,
-          "callLTP": 692.5,
-          "putLTP": 214.25
+          "callOI": 1.8,
+          "putOI": 8.7,
+          "callLTP": 699.65,
+          "putLTP": 210.95
         },
         {
           "strike": 72600,
-          "callOI": 4.2,
+          "callOI": 4.1,
           "putOI": 9.0,
-          "callLTP": 489.8,
-          "putLTP": 311.65
+          "callLTP": 499.7,
+          "putLTP": 308.0
         },
         {
           "strike": 72900,
-          "callOI": 3.7,
+          "callOI": 3.5,
           "putOI": 2.7,
-          "callLTP": 322.7,
-          "putLTP": 445.15
+          "callLTP": 331.7,
+          "putLTP": 440.0
         },
         {
           "strike": 73200,
           "callOI": 3.5,
           "putOI": 0.8,
-          "callLTP": 197.1,
-          "putLTP": 618.15
+          "callLTP": 202.6,
+          "putLTP": 613.45
         },
         {
           "strike": 73500,
-          "callOI": 7.2,
+          "callOI": 7.1,
           "putOI": 1.6,
-          "callLTP": 110.75,
-          "putLTP": 836.0
+          "callLTP": 114.0,
+          "putLTP": 823.0
         },
         {
           "strike": 73800,
           "callOI": 4.5,
           "putOI": 0.1,
-          "callLTP": 57.45,
-          "putLTP": 1075.3
+          "callLTP": 59.0,
+          "putLTP": 1094.3
         },
         {
           "strike": 74100,
           "callOI": 2.2,
           "putOI": 0.0,
-          "callLTP": 30.0,
+          "callLTP": 31.15,
           "putLTP": 1764.7
         },
         {
           "strike": 74400,
-          "callOI": 1.3,
+          "callOI": 1.2,
           "putOI": 0.0,
-          "callLTP": 16.0,
+          "callLTP": 16.5,
           "putLTP": 1637.65
         }
       ]
