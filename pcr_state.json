@@ -2,7 +2,7 @@
   "nifty_monthly": {
     "date": "2026-10-08",
     "min": 0.95153160139589,
-    "max": 0.9665486029122393,
+    "max": 1.0,
     "crossed": false
   },
   "nifty_weekly": {
@@ -13,13 +13,13 @@
   },
   "bankNifty_monthly": {
     "date": "2026-10-08",
-    "min": 0.9454253611556982,
+    "min": 0.939297124600639,
     "max": 0.9851239669421488,
     "crossed": false
   },
   "sensex_monthly": {
     "date": "2026-10-08",
-    "min": 1.2142857142857142,
+    "min": 1.0625,
     "max": 1.2142857142857142,
     "crossed": false
   },
